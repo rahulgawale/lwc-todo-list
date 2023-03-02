@@ -1,0 +1,29 @@
+<template>
+    <lightning-card
+        variant="Narrow"
+        title="Communication parent to child"
+        icon-name="standard:account"
+    >
+        <div class="slds-var-p-horizontal_small">
+            <lightning-input
+                type="text"
+                variant="standard"
+                name="Message"
+                label="Message"
+                placeholder="type here..."
+                onchange={handleChange}
+                value={message}
+            ></lightning-input>
+
+            <div class="slds-var-p-around_small">
+                message in parent cmp: => {message}
+            </div>
+        </div>
+
+        <c-child-comm
+            message={message}
+            class="slds-var-p-horizontal_small"
+            onmessagefromchild={handleMessageFromChild}
+        ></c-child-comm>
+    </lightning-card>
+</template>

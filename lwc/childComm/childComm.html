@@ -1,0 +1,14 @@
+<template>
+    <div class="slds-box background-color-badge">
+        Message in child Component => {message}
+    </div>
+
+    <lightning-input
+        type="text"
+        variant="standard"
+        name="message"
+        label="Message From Child"
+        placeholder="type here..."
+        onchange={handleChange}
+    ></lightning-input>
+</template>
