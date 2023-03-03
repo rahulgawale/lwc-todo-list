@@ -18,12 +18,20 @@
             <div class="slds-var-p-around_small">
                 message in parent cmp: => {message}
             </div>
+
+            <lightning-button
+                variant="brand"
+                label="Call Child Function"
+                title="Call Child Function"
+                onclick={callChildCmpMethod}
+            ></lightning-button>
         </div>
 
         <c-child-comm
             message={message}
-            class="slds-var-p-horizontal_small"
+            class="child-cmp slds-var-p-horizontal_small"
             onmessagefromchild={handleMessageFromChild}
+            addition={addition}
         ></c-child-comm>
     </lightning-card>
 </template>

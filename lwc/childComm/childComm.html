@@ -11,4 +11,38 @@
         placeholder="type here..."
         onchange={handleChange}
     ></lightning-input>
+
+    <lightning-input
+        class="slds-var-p-around_xx-small"
+        type="number"
+        variant="standard"
+        name="A"
+        label="A"
+        onchange={handleChangeA}
+        placeholder="type here..."
+    ></lightning-input>
+
+    <lightning-input
+        class="slds-var-p-around_xx-small"
+        type="number"
+        variant="standard"
+        name="B"
+        label="B"
+        onchange={handleChangeB}
+        placeholder="type here..."
+    ></lightning-input>
+
+    <div class="slds-var-p-around_xx-small">
+        Addition is {addition}
+
+    </div>
+    <div class="slds-var-p-around_xx-small">
+        Subtraction is {subtraction}
+    </div>
+    <div class="slds-var-p-around_xx-small">
+        Multiplication is {multiplication}
+    </div>
+    <div class="slds-var-p-around_xx-small">
+        Division is {division}
+    </div>
 </template>
