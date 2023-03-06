@@ -1,0 +1,103 @@
+<template>
+    <lightning-card
+        variant="Narrow"
+        title="Conditional Visibility (Old Style with if:true/if:false)"
+        icon-name="standard:account"
+    >
+
+        <div class="slds-var-p-horizontal_small">
+            <lightning-input
+                class="slds-var-p-around_x-small"
+                type="checkbox"
+                variant="standard"
+                name="showDiv"
+                label="Show Div"
+                placeholder="type here..."
+                onchange={handleCheckboxChange}
+                checked={showDiv}
+            ></lightning-input>
+
+            <div
+                class="my-div-green slds-var-p-around_x-small"
+                if:true={showDiv}
+            >
+                I am Green, when showDiv is true
+            </div>
+
+            <div
+                class="my-div-brown slds-var-p-around_x-small"
+                if:false={showDiv}
+            >
+                I am brown, when showDiv is false
+            </div>
+        </div>
+
+
+    </lightning-card>
+
+    <lightning-card
+        variant="Narrow"
+        title="Conditional Visibility (new style with lwc:if/lwc:ifelse/lwc:else)"
+        icon-name="standard:account"
+    >
+
+        <div class="slds-var-p-horizontal_small">
+            <lightning-combobox
+                name="color"
+                label="Select Color"
+                value={selectedColor}
+                placeholder="Select color"
+                options={colorOptions}
+                onchange={handleChangeColor}
+            ></lightning-combobox>
+            <div
+                class="my-div-green slds-var-p-around_x-small"
+                lwc:if={isGreen}
+            >
+                I am Green!
+            </div>
+            <div
+                lwc:elseif={isBrown}
+                class="my-div-brown slds-var-p-around_x-small"
+            >
+                I am Brown!
+            </div>
+            <div
+                lwc:elseif={isBlue}
+                class="my-div-blue slds-var-p-around_x-small"
+            >
+                I am Blue!
+            </div>
+        </div>
+
+
+    </lightning-card>
+
+    <lightning-card
+        variant="Narrow"
+        title="Link component classes/styles to JS attributes"
+        icon-name="standard:account"
+    >
+
+        <div class="slds-var-p-horizontal_small">
+            <lightning-input
+                type="number"
+                variant="standard"
+                name="Number"
+                label="Number"
+                placeholder="type here..."
+                value={number}
+                onchange={handleChangeNumber}
+            ></lightning-input>
+
+            <div
+                class={classes}
+                style={divStyle}
+            >
+                You entered number is : {number}
+            </div>
+        </div>
+    </lightning-card>
+
+
+</template>
