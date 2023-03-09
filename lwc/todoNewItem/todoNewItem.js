@@ -1,4 +1,4 @@
-import { LightningElement, wire } from "lwc";
+import { LightningElement, wire, track } from "lwc";
 import {
     createRecord,
     updateRecord,
@@ -28,12 +28,12 @@ export default class TodoNewItem extends LightningElement {
     isLoading = false;
     recordId = "";
     recordName = "";
-    todoList = [];
+    @track todoList = [];
 
     todoListCached;
 
     @wire(getTodoList)
-    todoList(value) {
+    todoList2(value) {
         this.todoListCached = value;
         let { error, data } = value;
         if (data) {
@@ -255,6 +255,144 @@ export default class TodoNewItem extends LightningElement {
                 const evt = new ShowToastEvent({
                     title: "Error",
                     message: "error updating todo item =>" + error.body.message,
+                    variant: "error"
+                });
+                this.dispatchEvent(evt);
+            })
+            .finally(() => {
+                this.isLoading = false;
+            });
+    }
+
+    handleRowChange(event) {
+        let id = event.target.dataset.id;
+        let record = this.todoList.find((todo) => todo.Id === id);
+
+        let oldRecord = { ...record };
+        // update field value, for example record.Description__c = event.target.value;
+        // where the field names such as Description__c, status__c and priority__c are set dynamically.
+        record[event.target.name] = event.target.value;
+
+        console.log("old value" + oldRecord[event.target.name]);
+        console.log("new value" + record[event.target.name]);
+        console.table(this.todoList);
+        // this.todoList = [...this.todoList];
+    }
+
+    handleChangeSelectAll(event) {
+        this.template
+            .querySelectorAll(".select")
+            .forEach((item) => (item.checked = event.target.checked));
+    }
+
+    handleDeleteSelected() {
+        let selected = Array.from(
+            this.template.querySelectorAll(".select")
+        ).filter((input) => input.checked === true);
+
+        let ids = selected.map((item) => item.dataset.id);
+
+        if (ids.length === 0) {
+            const evt = new ShowToastEvent({
+                title: "No records to delete",
+                message: "Please select at least one item to delete",
+                variant: "warning"
+            });
+            this.dispatchEvent(evt);
+            return;
+        }
+
+        /* let deletePromises = [];
+        ids.forEach((id) => deletePromises.push(deleteRecord(id))); */
+
+        let deletePromises = ids.map((id) => deleteRecord(id));
+
+        this.isLoading = true;
+        Promise.all(deletePromises)
+            .then((values) => {
+                console.log(values);
+                const evt = new ShowToastEvent({
+                    title: "Success",
+                    message: "Todo items deleted successfully",
+                    variant: "success"
+                });
+                this.dispatchEvent(evt);
+
+                // refresh table data
+                this.refreshData();
+            })
+            .catch((error) => {
+                console.error("error in promise.all", error);
+                const evt = new ShowToastEvent({
+                    title: "Error",
+                    message: "error deleting todo items" + error.body.message,
+                    variant: "error"
+                });
+                this.dispatchEvent(evt);
+            })
+            .finally(() => {
+                this.isLoading = false;
+            });
+    }
+
+    handleUpdateSelected() {
+        console.log("in handleUpdateSelected");
+        let selected = Array.from(
+            this.template.querySelectorAll(".select")
+        ).filter((select) => select.checked === true);
+
+        if (selected.length === 0) {
+            const evt = new ShowToastEvent({
+                title: "No records selected",
+                message: "Please select at least one item to update",
+                variant: "warning"
+            });
+            this.dispatchEvent(evt);
+            return;
+        }
+
+        this.isLoading = true;
+        let selectedIds = selected.map((select) => select.dataset.id);
+
+        // get records to save from todoList.
+        let recordsToSave = this.todoList.filter((todo) =>
+            selectedIds.includes(todo.Id)
+        );
+
+        console.table(recordsToSave);
+
+        let updatePromises = recordsToSave.map((record) =>
+            updateRecord({
+                fields: {
+                    Id: record.Id,
+                    Priority__c: record.Priority__c,
+                    Description__c: record.Description__c,
+                    Status__c: record.Status__c
+                }
+            })
+        );
+
+        Promise.all(updatePromises)
+            .then(() => {
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: "Updated Successfully",
+                        message: "Records updated successfully!",
+                        variant: "success"
+                    })
+                );
+
+                this.template
+                    .querySelectorAll(".select")
+                    .forEach((item) => (item.checked = false));
+
+                this.refreshData();
+            })
+            .catch((error) => {
+                console.error("error in promise.all", error);
+                const evt = new ShowToastEvent({
+                    title: "Error",
+                    message: "error updating todo items" + error.body.message,
                     variant: "error"
                 });
                 this.dispatchEvent(evt);
