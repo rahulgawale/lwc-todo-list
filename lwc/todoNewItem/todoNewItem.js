@@ -7,6 +7,7 @@ import {
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import { refreshApex } from "@salesforce/apex";
 import getTodoList from "@salesforce/apex/TodoListController.getTodoList";
+import updateRecords from "@salesforce/apex/TodoListController.updateRecords";
 
 import TODO from "@salesforce/schema/Todo__c";
 export default class TodoNewItem extends LightningElement {
@@ -396,6 +397,84 @@ export default class TodoNewItem extends LightningElement {
                     variant: "error"
                 });
                 this.dispatchEvent(evt);
+            })
+            .finally(() => {
+                this.isLoading = false;
+            });
+    }
+
+    handleUpdateSelectedApex() {
+        console.log("in handleUpdateSelected");
+        let selected = Array.from(
+            this.template.querySelectorAll(".select")
+        ).filter((select) => select.checked === true);
+
+        if (selected.length === 0) {
+            const evt = new ShowToastEvent({
+                title: "No records selected",
+                message: "Please select at least one item to update",
+                variant: "warning"
+            });
+            this.dispatchEvent(evt);
+            return;
+        }
+
+        this.isLoading = true;
+        let selectedIds = selected.map((select) => select.dataset.id);
+
+        // get records to save from todoList.
+        let recordsToSave = this.todoList.filter((todo) =>
+            selectedIds.includes(todo.Id)
+        );
+
+        /* // explanation of recordsToSave.map
+        let recs = [];
+        for (let rec of recordsToSave) {
+            let newRec = {
+                Id: rec.Id,
+                Priority__c: rec.Priority__c,
+                Description__c: rec.Description__c,
+                Status__c: rec.Status__c
+            };
+            recs.push(newRec);
+        }
+        recordsToSave = recs; */
+
+        recordsToSave = recordsToSave.map((record) => ({
+            Id: record.Id,
+            Priority__c: record.Priority__c,
+            Description__c: record.Description__c,
+            Status__c: record.Status__c
+        }));
+
+        updateRecords({
+            todoList: recordsToSave
+        })
+            .then(() => {
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: "Success",
+                        message: "Records updated successfully",
+                        variant: "success"
+                    })
+                );
+
+                this.refreshData();
+
+                this.template
+                    .querySelectorAll(".select")
+                    .forEach((item) => (item.checked = false));
+            })
+            .catch((error) => {
+                console.error(error);
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: "Failure",
+                        message:
+                            "Error while updating the records " + error.message,
+                        variant: "error"
+                    })
+                );
             })
             .finally(() => {
                 this.isLoading = false;
